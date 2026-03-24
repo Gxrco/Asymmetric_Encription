@@ -1,0 +1,31 @@
+# Claves privadas - NUNCA subir al repositorio
+private_key.pem
+*.pem
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Entornos virtuales
+venv/
+ENV/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de prueba
+test_document.txt
+*.tmp
