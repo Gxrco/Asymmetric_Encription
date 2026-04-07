@@ -1,7 +1,15 @@
+"""
+Módulo para cifrado híbrido RSA-OAEP + AES-GCM
+Laboratorio de Cifrado Asimétrico - RSA
+"""
+
 import os
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
-from generar_claves import generar_par_claves
+from .generar_claves import generar_par_claves
+
+# Directorio de salida para archivos RSA
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'output', 'rsa')
 
 
 def encrypt_document(document: bytes, recipient_public_key_pem: bytes) -> bytes:
@@ -72,11 +80,11 @@ if __name__ == '__main__':
     print("Generando claves RSA de 2048 bits...")
     generar_par_claves(2048)
 
-    # Leer las claves
-    with open("public_key.pem", "rb") as f:
+    # Leer las claves desde output/rsa/
+    with open(os.path.join(OUTPUT_DIR, "public_key.pem"), "rb") as f:
         pub = f.read()
 
-    with open("private_key.pem", "rb") as f:
+    with open(os.path.join(OUTPUT_DIR, "private_key.pem"), "rb") as f:
         priv = f.read()
 
     # Prueba 1: Documento pequeño

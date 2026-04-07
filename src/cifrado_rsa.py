@@ -1,5 +1,14 @@
+"""
+Módulo para cifrado directo con RSA-OAEP
+Laboratorio de Cifrado Asimétrico - RSA
+"""
+
+import os
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
+
+# Directorio de salida para archivos RSA
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'output', 'rsa')
 
 
 def cifrar_con_rsa(mensaje: bytes, public_key_pem: bytes) -> bytes:
@@ -37,17 +46,17 @@ def descifrar_con_rsa(cifrado: bytes, private_key_pem: bytes, passphrase: str = 
 
 
 if __name__ == '__main__':
-    from generar_claves import generar_par_claves
+    from .generar_claves import generar_par_claves
 
     # Generar claves para prueba
     print("Generando claves RSA...")
     generar_par_claves(2048)
 
-    # Leer las claves
-    with open('public_key.pem', 'rb') as f:
+    # Leer las claves desde output/rsa/
+    with open(os.path.join(OUTPUT_DIR, 'public_key.pem'), 'rb') as f:
         public_key = f.read()
 
-    with open('private_key.pem', 'rb') as f:
+    with open(os.path.join(OUTPUT_DIR, 'private_key.pem'), 'rb') as f:
         private_key = f.read()
 
     # Mensaje de prueba
