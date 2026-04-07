@@ -43,13 +43,13 @@ También puedes ejecutar cada módulo por separado:
 
 ```bash
 # Generar claves
-python generar_claves.py
+python -m src.generar_claves
 
 # Probar cifrado directo RSA
-python cifrado_rsa.py
+python -m src.cifrado_rsa
 
 # Probar cifrado híbrido
-python cifrado_hibrido.py
+python -m src.cifrado_hibrido
 ```
 
 ## Ejemplos de Ejecución
@@ -66,7 +66,7 @@ Claves generadas exitosamente:
 ### Ejemplo 2: Cifrado Directo RSA-OAEP
 
 ```python
-from cifrado_rsa import cifrar_con_rsa, descifrar_con_rsa
+from src.cifrado_rsa import cifrar_con_rsa, descifrar_con_rsa
 
 # Leer claves
 with open('public_key.pem', 'rb') as f:
@@ -86,7 +86,7 @@ print(original.decode())  # "Documento confidencial"
 ### Ejemplo 3: Cifrado Híbrido
 
 ```python
-from cifrado_hibrido import encrypt_document, decrypt_document
+from src.cifrado_hibrido import encrypt_document, decrypt_document
 
 # Cifrar documento grande
 documento = b"Contrato de confidencialidad No. 2025-GT-001" * 1000
@@ -226,3 +226,113 @@ OAEP añade estructura al mensaje antes del cifrado RSA para:
 3. **Protección de clave privada**: Usar passphrase fuerte
 4. **Cifrado híbrido**: Usar RSA solo para intercambio de claves, AES para datos
 5. **Modo de AES**: Usar GCM que proporciona autenticación
+
+---
+
+# Laboratorio de Hashes y Firmas Digitales
+
+## Escenario: MediSoft
+
+MediSoft es una empresa que desarrolla software médico para hospitales y laboratorios clínicos. Cuando publican una nueva versión de su software, necesitan garantizar:
+
+1. **Integridad**: Los archivos no fueron modificados durante la descarga
+2. **Autenticidad**: El paquete realmente proviene de MediSoft
+
+Para lograr esto, MediSoft:
+- Calcula el SHA-256 de cada archivo y lo publica en `SHA256SUMS.txt`
+- Firma digitalmente `SHA256SUMS.txt` con su clave privada RSA
+
+Los hospitales pueden:
+- Verificar la firma con la clave pública de MediSoft
+- Recalcular los hashes y compararlos con el manifiesto
+
+## Instalación
+
+```bash
+pip install -r requirements.txt
+```
+
+## Ejecución del Lab Hashes y Firmas
+
+```bash
+# 1. Exploración de algoritmos hash y efecto avalancha
+python -m src.explorar_hashes
+
+# 2. Verificación de contraseñas contra Have I Been Pwned
+python -m src.hibp_check
+
+# 3. Generar archivos de prueba y manifiesto SHA256SUMS.txt
+python -m src.generar_manifiesto
+
+# 4. Verificar integridad del paquete (incluye demo de tamper)
+python -m src.verificar_paquete
+
+# 5. Generar par de claves RSA para MediSoft
+python -m src.generar_claves_rsa
+
+# 6. Firmar el manifiesto con RSA-PSS
+python -m src.firmar_manifiesto
+
+# 7. Verificar firma (tres escenarios: válido, alterado, archivo corrupto)
+python -m src.verificar_firma
+```
+
+## Ejecución de Tests
+
+```bash
+pytest tests/ -v
+```
+
+## Respuestas de Análisis - Lab Hashes
+
+### 1. ¿Cuántos bits cambiaron entre los dos SHA-256?
+
+El XOR entre los hashes de `"MediSoft-v2.1.0"` y `"medisoft-v2.1.0"` produce aproximadamente **120-130 bits distintos** (≈50% de 256 bits).
+
+Esto demuestra el efecto avalancha, cualquier cambio mínimo en la entrada produce un hash completamente diferente e impredecible.
+
+### 2. ¿Por qué MD5 es inseguro para integridad de archivos?
+
+1. **Longitud insuficiente**: Con 128 bits, ataques de cumpleaños requieren solo O(2^64) operaciones
+2. **Colisiones conocidas**: Existen colisiones MD5 publicadas; un atacante puede crear dos archivos con el mismo hash
+
+Para software médico, esto es inaceptable: un binario malicioso podría reemplazar al legítimo sin detección.
+
+### 3. ¿Por qué la firma es válida si se modifica un archivo del paquete?
+
+La firma RSA-PSS protege **solo el manifiesto** (`SHA256SUMS.txt`), no los archivos directamente.
+
+- Si el manifiesto no cambió → firma válida
+- Si un archivo cambió → `verificar_paquete.py` lo detecta
+
+Las dos capas son complementarias:
+- **Firma**: autentica quién creó el manifiesto
+- **Manifiesto**: verifica integridad de cada archivo
+
+Para más detalles, ver [docs/analisis_hashes_firmas.md](docs/analisis_hashes_firmas.md)
+
+## Estructura del Proyecto
+
+```
+proyecto/
+├── src/
+│   ├── generar_claves.py        # Lab RSA
+│   ├── cifrado_rsa.py           # Lab RSA
+│   ├── cifrado_hibrido.py       # Lab RSA
+│   ├── explorar_hashes.py       # Lab Hashes
+│   ├── hibp_check.py            # Lab Hashes
+│   ├── generar_manifiesto.py    # Lab Hashes
+│   ├── verificar_paquete.py     # Lab Hashes
+│   ├── generar_claves_rsa.py    # Lab Firmas
+│   ├── firmar_manifiesto.py     # Lab Firmas
+│   └── verificar_firma.py       # Lab Firmas
+├── tests/
+│   ├── test_rsa.py
+│   └── test_hashes_firmas.py
+├── docs/
+│   ├── analisis_rsa.md
+│   └── analisis_hashes_firmas.md
+├── main.py
+├── README.md
+└── requirements.txt
+```
