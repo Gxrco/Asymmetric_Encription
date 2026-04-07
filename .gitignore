@@ -1,6 +1,10 @@
 # Claves privadas - NUNCA subir al repositorio
 private_key.pem
+medisoft_priv.pem
 *.pem
+
+# Archivos de firma
+SHA256SUMS.sig
 
 # Archivos de Python
 __pycache__/
