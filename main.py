@@ -8,9 +8,9 @@ para la transferencia segura de documentos.
 """
 
 import os
-from generar_claves import generar_par_claves
-from cifrado_rsa import cifrar_con_rsa, descifrar_con_rsa
-from cifrado_hibrido import encrypt_document, decrypt_document
+from src.generar_claves import generar_par_claves, OUTPUT_DIR
+from src.cifrado_rsa import cifrar_con_rsa, descifrar_con_rsa
+from src.cifrado_hibrido import encrypt_document, decrypt_document
 
 
 def mostrar_menu():
@@ -43,12 +43,15 @@ def prueba_generacion_claves():
     print(f"\nGenerando claves RSA de {bits} bits...")
     generar_par_claves(bits)
 
+    public_key_path = os.path.join(OUTPUT_DIR, 'public_key.pem')
+    private_key_path = os.path.join(OUTPUT_DIR, 'private_key.pem')
+
     print("\nClaves generadas exitosamente:")
-    print("  - private_key.pem (protegida con passphrase 'lab04uvg')")
-    print("  - public_key.pem")
+    print(f"  - {private_key_path} (protegida con passphrase 'lab04uvg')")
+    print(f"  - {public_key_path}")
 
     # Mostrar información de la clave pública
-    with open('public_key.pem', 'r') as f:
+    with open(public_key_path, 'r') as f:
         print("\nContenido de public_key.pem:")
         print(f.read())
 
@@ -59,16 +62,19 @@ def prueba_cifrado_rsa():
     """
     print("\n--- CIFRADO DIRECTO CON RSA-OAEP ---")
 
+    public_key_path = os.path.join(OUTPUT_DIR, 'public_key.pem')
+    private_key_path = os.path.join(OUTPUT_DIR, 'private_key.pem')
+
     # Verificar que existan las claves
-    if not os.path.exists('public_key.pem') or not os.path.exists('private_key.pem'):
+    if not os.path.exists(public_key_path) or not os.path.exists(private_key_path):
         print("Error: No se encontraron las claves. Genere las claves primero (opción 1).")
         return
 
     # Leer las claves
-    with open('public_key.pem', 'rb') as f:
+    with open(public_key_path, 'rb') as f:
         public_key = f.read()
 
-    with open('private_key.pem', 'rb') as f:
+    with open(private_key_path, 'rb') as f:
         private_key = f.read()
 
     # Solicitar mensaje al usuario
@@ -111,16 +117,19 @@ def prueba_cifrado_hibrido():
     """
     print("\n--- CIFRADO HÍBRIDO RSA-OAEP + AES-GCM ---")
 
+    public_key_path = os.path.join(OUTPUT_DIR, 'public_key.pem')
+    private_key_path = os.path.join(OUTPUT_DIR, 'private_key.pem')
+
     # Verificar que existan las claves
-    if not os.path.exists('public_key.pem') or not os.path.exists('private_key.pem'):
+    if not os.path.exists(public_key_path) or not os.path.exists(private_key_path):
         print("Error: No se encontraron las claves. Genere las claves primero (opción 1).")
         return
 
     # Leer las claves
-    with open('public_key.pem', 'rb') as f:
+    with open(public_key_path, 'rb') as f:
         pub = f.read()
 
-    with open('private_key.pem', 'rb') as f:
+    with open(private_key_path, 'rb') as f:
         priv = f.read()
 
     # Prueba 1: Documento de texto
@@ -161,16 +170,19 @@ def ejecutar_todas_pruebas():
     print("   EJECUTANDO TODAS LAS PRUEBAS")
     print("=" * 60)
 
+    public_key_path = os.path.join(OUTPUT_DIR, 'public_key.pem')
+    private_key_path = os.path.join(OUTPUT_DIR, 'private_key.pem')
+
     # 1. Generar claves
     print("\n1. Generando claves RSA de 2048 bits...")
     generar_par_claves(2048)
     print("   ✓ Claves generadas")
 
     # Leer las claves
-    with open('public_key.pem', 'rb') as f:
+    with open(public_key_path, 'rb') as f:
         pub = f.read()
 
-    with open('private_key.pem', 'rb') as f:
+    with open(private_key_path, 'rb') as f:
         priv = f.read()
 
     # 2. Cifrado directo RSA
